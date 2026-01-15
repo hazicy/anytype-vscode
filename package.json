@@ -1,24 +1,84 @@
 {
-  "name": "memos",
-  "displayName": "Memos",
-  "description": "",
+  "name": "anytype-vscode-extension",
+  "displayName": "Anytype",
+  "description": "A VSCode extension for managing Anytype notes and objects",
   "author": "hazi",
+  "publisher": "hazi",
   "version": "0.0.1",
+  "icon": "resources/logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hazicy/anytype-vscode"
+  },
   "engines": {
     "vscode": "^1.107.1"
   },
   "categories": [
-    "Other"
+    "Notebooks"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "memos.helloWorld",
-        "title": "Hello World"
+        "command": "anytype.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "anytype.openSettings",
+        "title": "Open Settings"
+      },
+      {
+        "command": "anytype.switchSpace",
+        "title": "Switch Space",
+        "icon": "$(database)"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "anytypeContainer",
+          "title": "Anytype",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "anytypeContainer": [
+        {
+          "id": "objectsView",
+          "name": "Objects"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Anytype",
+      "properties": {
+        "anytype.api.baseUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:31009",
+          "description": "The base URL of the Anytype API"
+        },
+        "anytype.api.token": {
+          "type": "string",
+          "default": "",
+          "description": "API token for authentication (Bearer token)"
+        },
+        "anytype.cache.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable caching of API responses"
+        },
+        "anytype.cache.ttl": {
+          "type": "number",
+          "default": 300000,
+          "description": "Cache time-to-live in milliseconds (default: 5 minutes)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
@@ -38,10 +98,15 @@
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.2",
+    "prettier": "3.7.4",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.52.0",
+    "vscode-nls": "^5.2.0",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "axios": "^1.13.2"
   }
 }
