@@ -40,6 +40,14 @@
         "command": "anytype.createObject",
         "title": "%command.anytype.createObject.title%",
         "icon": "$(add)"
+      },
+      {
+        "command": "anytype.deleteObject",
+        "title": "%command.anytype.deleteObject.title%"
+      },
+      {
+        "command": "anytype.archiveObject",
+        "title": "%command.anytype.archiveObject.title%"
       }
     ],
     "viewsContainers": {
@@ -66,6 +74,18 @@
           "command": "anytype.createObject",
           "when": "view == objectsView",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "anytype.deleteObject",
+          "when": "view == objectsView && viewItem == blinkoObject",
+          "group": "inline"
+        },
+        {
+          "command": "anytype.archiveObject",
+          "when": "view == objectsView && viewItem == blinkoObject",
+          "group": "inline"
         }
       ]
     },

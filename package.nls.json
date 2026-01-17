@@ -5,6 +5,8 @@
   "command.anytype.openSettings.title": "Open Settings",
   "command.anytype.switchSpace.title": "Switch Space",
   "command.anytype.createObject.title": "Create New Object",
+  "command.anytype.deleteObject.title": "Delete Object",
+  "command.anytype.archiveObject.title": "Archive Object",
   "view.anytypeContainer.title": "Anytype",
   "view.objectsView.name": "Objects",
   "configuration.title": "Anytype",

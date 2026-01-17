@@ -5,6 +5,8 @@
   "command.anytype.openSettings.title": "打开设置",
   "command.anytype.switchSpace.title": "切换空间",
   "command.anytype.createObject.title": "创建新对象",
+  "command.anytype.deleteObject.title": "删除对象",
+  "command.anytype.archiveObject.title": "归档对象",
   "view.anytypeContainer.title": "Anytype",
   "view.objectsView.name": "对象",
   "configuration.title": "Anytype",

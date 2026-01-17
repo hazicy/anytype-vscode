@@ -41,5 +41,16 @@
   "extension.command.createObject.nameRequired": "对象名称不能为空",
   "extension.command.createObject.creating": "正在创建对象...",
   "extension.command.createObject.success": "对象创建成功",
-  "extension.command.createObject.error": "创建对象失败"
+  "extension.command.createObject.error": "创建对象失败",
+  "extension.command.deleteObject.noSelection": "未选择对象",
+  "extension.command.deleteObject.confirm": "确定要删除 '{0}' 吗？此操作无法撤销。",
+  "extension.command.deleteObject.confirmButton": "删除",
+  "extension.command.deleteObject.cancelButton": "取消",
+  "extension.command.deleteObject.deleting": "正在删除对象...",
+  "extension.command.deleteObject.success": "成功删除 '{0}'",
+  "extension.command.deleteObject.error": "删除对象失败",
+  "extension.command.archiveObject.noSelection": "未选择对象",
+  "extension.command.archiveObject.archiving": "正在归档对象...",
+  "extension.command.archiveObject.notSupported": "暂不支持归档 '{0}'。Anytype API 未提供归档方法。",
+  "extension.command.archiveObject.error": "归档对象失败"
 }

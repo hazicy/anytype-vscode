@@ -41,5 +41,16 @@
   "extension.command.createObject.nameRequired": "Object name is required",
   "extension.command.createObject.creating": "Creating object...",
   "extension.command.createObject.success": "Object created successfully",
-  "extension.command.createObject.error": "Failed to create object"
+  "extension.command.createObject.error": "Failed to create object",
+  "extension.command.deleteObject.noSelection": "No object selected",
+  "extension.command.deleteObject.confirm": "Are you sure you want to delete '{0}'? This action cannot be undone.",
+  "extension.command.deleteObject.confirmButton": "Delete",
+  "extension.command.deleteObject.cancelButton": "Cancel",
+  "extension.command.deleteObject.deleting": "Deleting object...",
+  "extension.command.deleteObject.success": "Successfully deleted '{0}'",
+  "extension.command.deleteObject.error": "Failed to delete object",
+  "extension.command.archiveObject.noSelection": "No object selected",
+  "extension.command.archiveObject.archiving": "Archiving object...",
+  "extension.command.archiveObject.notSupported": "Archiving is not currently supported for '{0}'. The Anytype API does not provide an archive method.",
+  "extension.command.archiveObject.error": "Failed to archive object"
 }
