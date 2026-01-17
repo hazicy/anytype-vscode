@@ -4,6 +4,7 @@
   "command.anytype.refresh.title": "Refresh",
   "command.anytype.openSettings.title": "Open Settings",
   "command.anytype.switchSpace.title": "Switch Space",
+  "command.anytype.createObject.title": "Create New Object",
   "view.anytypeContainer.title": "Anytype",
   "view.objectsView.name": "Objects",
   "configuration.title": "Anytype",

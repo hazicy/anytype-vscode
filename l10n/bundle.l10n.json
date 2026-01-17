@@ -33,5 +33,13 @@
   "extension.error.failedToOpenMarkdown": "Failed to open markdown file: {0}",
   "extension.error.fetchingDetails": "Failed to fetch details for object {0}",
   "extension.command.syncSuccess": "Successfully synced '{0}'",
-  "extension.error.syncFailed": "Failed to sync: {0}"
+  "extension.error.syncFailed": "Failed to sync: {0}",
+  "extension.command.createObject.noTypes": "No types found. Please create a type first.",
+  "extension.command.createObject.selectType": "Select a type for the new object",
+  "extension.command.createObject.enterName": "Enter object name",
+  "extension.command.createObject.enterNamePrompt": "Enter the name for the new object",
+  "extension.command.createObject.nameRequired": "Object name is required",
+  "extension.command.createObject.creating": "Creating object...",
+  "extension.command.createObject.success": "Object created successfully",
+  "extension.command.createObject.error": "Failed to create object"
 }

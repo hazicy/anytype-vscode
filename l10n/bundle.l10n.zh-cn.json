@@ -33,5 +33,13 @@
   "extension.error.failedToOpenMarkdown": "无法打开 markdown 文件：{0}",
   "extension.error.fetchingDetails": "获取对象 {0} 的详细信息失败",
   "extension.command.syncSuccess": "成功同步 '{0}'",
-  "extension.error.syncFailed": "同步失败：{0}"
+  "extension.error.syncFailed": "同步失败：{0}",
+  "extension.command.createObject.noTypes": "未找到类型。请先创建一个类型。",
+  "extension.command.createObject.selectType": "选择新对象的类型",
+  "extension.command.createObject.enterName": "输入对象名称",
+  "extension.command.createObject.enterNamePrompt": "输入新对象的名称",
+  "extension.command.createObject.nameRequired": "对象名称不能为空",
+  "extension.command.createObject.creating": "正在创建对象...",
+  "extension.command.createObject.success": "对象创建成功",
+  "extension.command.createObject.error": "创建对象失败"
 }

@@ -6,6 +6,7 @@ import { registerSwitchSpaceCommand } from './switchSpace';
 import { registerOpenMarkdownCommand } from './openMarkdown';
 import { registerSyncOnSaveCommand } from './syncOnSave';
 import { registerEditorDecorator } from './decorateEditor';
+import { registerCreateObjectCommand } from './createObject';
 
 export function registerCommands(
   context: vscode.ExtensionContext,
@@ -17,4 +18,5 @@ export function registerCommands(
   registerOpenMarkdownCommand(context);
   registerSyncOnSaveCommand(context);
   registerEditorDecorator(context);
+  registerCreateObjectCommand(context, objectsTreeProvider);
 }

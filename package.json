@@ -35,6 +35,11 @@
         "command": "anytype.switchSpace",
         "title": "%command.anytype.switchSpace.title%",
         "icon": "$(database)"
+      },
+      {
+        "command": "anytype.createObject",
+        "title": "%command.anytype.createObject.title%",
+        "icon": "$(add)"
       }
     ],
     "viewsContainers": {
@@ -50,7 +55,17 @@
       "anytypeContainer": [
         {
           "id": "objectsView",
-          "name": "%view.objectsView.name%"
+          "name": "%view.objectsView.name%",
+          "icon": "$(add)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "anytype.createObject",
+          "when": "view == objectsView",
+          "group": "navigation"
         }
       ]
     },

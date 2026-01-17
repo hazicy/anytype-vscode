@@ -12,7 +12,7 @@ export type TreeItem = {
   collapsibleState: vscode.TreeItemCollapsibleState;
   children?: TreeItem[];
   markdown?: string;
-};
+} & vscode.TreeItem;
 
 /**
  * 缓存项结构

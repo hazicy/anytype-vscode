@@ -4,6 +4,7 @@
   "command.anytype.refresh.title": "刷新",
   "command.anytype.openSettings.title": "打开设置",
   "command.anytype.switchSpace.title": "切换空间",
+  "command.anytype.createObject.title": "创建新对象",
   "view.anytypeContainer.title": "Anytype",
   "view.objectsView.name": "对象",
   "configuration.title": "Anytype",
