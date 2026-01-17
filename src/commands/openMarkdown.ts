@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { StorageManager, SpaceManager, getApiClient, ObjectSyncManager } from '../services';
 import { I18n } from '../utils';
 import { TreeItem } from '../views/tree/objectsTreeProvider';
-import prettier from 'prettier';
 
 export function registerOpenMarkdownCommand(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -18,19 +17,6 @@ export function registerOpenMarkdownCommand(context: vscode.ExtensionContext) {
             const spaceId = SpaceManager.getCurrentSpaceId();
             const response = await client.objects.get(spaceId, item.id);
             markdown = response.object.markdown ?? '';
-          }
-
-          // 使用 Prettier 格式化 markdown
-          try {
-            const formatted = await prettier.format(markdown, {
-              parser: 'markdown',
-              proseWrap: 'preserve',
-              printWidth: 80,
-            });
-            markdown = formatted;
-          } catch (formatError) {
-            // 如果格式化失败，使用原始 markdown
-            console.warn('Failed to format markdown:', formatError);
           }
 
           const filePath = StorageManager.writeFile(item.label, markdown);
