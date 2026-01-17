@@ -3,7 +3,11 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(pnpm run lint)",
-      "Bash(pnpm run compile:*)"
+      "Bash(pnpm run compile:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npm run compile:*)",
+      "Bash(tree:*)",
+      "Bash(ls:*)"
     ]
   }
 }

@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
-import { instance, recreateApiClient } from '../../lib/request';
-import { ConfigManager } from '../../lib/config';
-import { SpaceManager } from '../../lib/spaceManager';
-import { SpaceObject } from '../../types';
+import { getApiClient, ConfigManager, SpaceManager } from '../../services';
+import { I18n } from '../../utils';
+import { type Object } from '../../lib/sdk';
 
 /**
  * 树节点结构
@@ -36,7 +35,9 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
   private cache: Map<string, CacheItem> = new Map();
 
   constructor() {
-    this.outputChannel = vscode.window.createOutputChannel('Blinko');
+    this.outputChannel = vscode.window.createOutputChannel(
+      I18n.t('extension.tree.outputChannel'),
+    );
   }
 
   /**
@@ -64,7 +65,7 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
     if (element.markdown) {
       treeItem.command = {
         command: 'anytype.openMarkdown',
-        title: 'Open Markdown',
+        title: I18n.t('extension.anytype.openMarkdown'),
         arguments: [element],
       };
     }
@@ -99,47 +100,53 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
     // 验证配置
     const validation = ConfigManager.validateConfig();
     if (!validation.valid) {
-      vscode.window.showWarningMessage(validation.message!);
+      vscode.window.showWarningMessage(validation.error!);
       return [];
     }
 
     // 验证空间
     if (!SpaceManager.hasSpace()) {
       vscode.window
-        .showWarningMessage('Please select a space first', 'Select Space')
+        .showWarningMessage(
+          I18n.t('extension.command.pleaseSelectSpace'),
+          I18n.t('extension.command.selectSpace'),
+        )
         .then((selection) => {
-          if (selection === 'Select Space') {
+          if (selection === I18n.t('extension.command.selectSpace')) {
             vscode.commands.executeCommand('anytype.switchSpace');
           }
         });
       return [];
     }
 
+    // Note: types.list() requires spaceId but we don't need it here
+    // as we're just returning static categories
+
     // 返回5个分类作为根节点
     return [
       {
         id: 'pages',
-        label: 'Pages',
+        label: I18n.t('extension.tree.category.pages'),
         collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       },
       {
         id: 'tasks',
-        label: 'Tasks',
+        label: I18n.t('extension.tree.category.tasks'),
         collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       },
       {
         id: 'collections',
-        label: 'Collections',
+        label: I18n.t('extension.tree.category.collections'),
         collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       },
       {
         id: 'bookmarks',
-        label: 'Bookmarks',
+        label: I18n.t('extension.tree.category.bookmarks'),
         collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       },
       {
         id: 'images',
-        label: 'Images',
+        label: I18n.t('extension.tree.category.images'),
         collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       },
     ];
@@ -167,32 +174,27 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
     try {
       this.log(`Fetching ${category} for space: ${spaceId}`);
 
-      // 获取对象列表
-      const objectsResponse = await instance.get(
-        `/v1/spaces/${spaceId}/objects`,
-        {
-          params: {
-            offset: 0,
-            limit: 50,
-          },
-        },
-      );
+      const client = getApiClient();
 
-      const objects: SpaceObject[] = objectsResponse.data.data;
+      // 获取对象列表
+      const objectsResponse = await client.objects.list(spaceId, {
+        offset: 0,
+        limit: 50,
+      });
+
+      const objects: Object[] = objectsResponse.data;
 
       this.log(`Found ${objects.length} objects in ${category}`);
 
       // 并行获取所有对象的详细信息
       const item = objects.map(async (object) => {
         try {
-          const detailResponse = await instance.get(
-            `/v1/spaces/${spaceId}/objects/${object.id}`,
-            {
-              params: { format: 'md' },
-            },
+          const detailResponse = await client.objects.get(
+            spaceId,
+            object.id,
           );
 
-          const data = detailResponse.data.object;
+          const data = detailResponse.object;
 
           return {
             id: data.id,
@@ -201,7 +203,7 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             markdown: data.markdown,
           };
         } catch (error) {
-          this.log(`Failed to fetch details for object ${object.id}`);
+          this.log(I18n.t('extension.error.fetchingDetails', object.id));
           return null;
         }
       });

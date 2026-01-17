@@ -1,7 +1,7 @@
 {
   "name": "anytype-vscode-extension",
-  "displayName": "Anytype",
-  "description": "A VSCode extension for managing Anytype notes and objects",
+  "displayName": "%displayName%",
+  "description": "%description%",
   "author": "hazi",
   "publisher": "hazi",
   "version": "0.0.1",
@@ -24,16 +24,16 @@
     "commands": [
       {
         "command": "anytype.refresh",
-        "title": "Refresh",
+        "title": "%command.anytype.refresh.title%",
         "icon": "$(refresh)"
       },
       {
         "command": "anytype.openSettings",
-        "title": "Open Settings"
+        "title": "%command.anytype.openSettings.title%"
       },
       {
         "command": "anytype.switchSpace",
-        "title": "Switch Space",
+        "title": "%command.anytype.switchSpace.title%",
         "icon": "$(database)"
       }
     ],
@@ -41,7 +41,7 @@
       "activitybar": [
         {
           "id": "anytypeContainer",
-          "title": "Anytype",
+          "title": "%view.anytypeContainer.title%",
           "icon": "resources/icon.svg"
         }
       ]
@@ -50,32 +50,32 @@
       "anytypeContainer": [
         {
           "id": "objectsView",
-          "name": "Objects"
+          "name": "%view.objectsView.name%"
         }
       ]
     },
     "configuration": {
-      "title": "Anytype",
+      "title": "%configuration.title%",
       "properties": {
         "anytype.api.baseUrl": {
           "type": "string",
           "default": "http://127.0.0.1:31009",
-          "description": "The base URL of the Anytype API"
+          "description": "%configuration.api.baseUrl.description%"
         },
         "anytype.api.token": {
           "type": "string",
           "default": "",
-          "description": "API token for authentication (Bearer token)"
+          "description": "%configuration.api.token.description%"
         },
         "anytype.cache.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable caching of API responses"
+          "description": "%configuration.cache.enabled.description%"
         },
         "anytype.cache.ttl": {
           "type": "number",
           "default": 300000,
-          "description": "Cache time-to-live in milliseconds (default: 5 minutes)"
+          "description": "%configuration.cache.ttl.description%"
         }
       }
     }
@@ -102,11 +102,7 @@
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.52.0",
-    "vscode-nls": "^5.2.0",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1"
-  },
-  "dependencies": {
-    "axios": "^1.13.2"
   }
 }

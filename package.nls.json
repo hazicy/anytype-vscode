@@ -1,0 +1,14 @@
+{
+  "displayName": "Anytype",
+  "description": "A VSCode extension for managing Anytype notes and objects",
+  "command.anytype.refresh.title": "Refresh",
+  "command.anytype.openSettings.title": "Open Settings",
+  "command.anytype.switchSpace.title": "Switch Space",
+  "view.anytypeContainer.title": "Anytype",
+  "view.objectsView.name": "Objects",
+  "configuration.title": "Anytype",
+  "configuration.api.baseUrl.description": "The base URL of the Anytype API",
+  "configuration.api.token.description": "API token for authentication (Bearer token)",
+  "configuration.cache.enabled.description": "Enable caching of API responses",
+  "configuration.cache.ttl.description": "Cache time-to-live in milliseconds (default: 5 minutes)"
+}

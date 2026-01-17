@@ -1,27 +1,12 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
 import { ObjectsTreeProvider, TreeItem } from './views/tree/objectsTreeProvider';
-import { recreateApiClient } from './lib/request';
-import { SpaceManager } from './lib/spaceManager';
-
-/**
- * 获取扩展的缓存目录
- */
-function getCacheDir(context: vscode.ExtensionContext): string {
-  const globalStoragePath = context.globalStorageUri.fsPath;
-  const cacheDir = path.join(globalStoragePath, 'markdown-cache');
-
-  // 确保缓存目录存在
-  if (!fs.existsSync(cacheDir)) {
-    fs.mkdirSync(cacheDir, { recursive: true });
-  }
-
-  return cacheDir;
-}
+import { ApiClientManager, SpaceManager, StorageManager, ConfigManager } from './services';
+import { I18n } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
-  // 初始化空间管理器
+  // Initialize services
+  I18n.initialize(context);
+  StorageManager.initialize(context);
   SpaceManager.initialize(context);
 
   const objectsTreeProvider = new ObjectsTreeProvider();
@@ -42,10 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
   // 打开设置命令
   context.subscriptions.push(
     vscode.commands.registerCommand('anytype.openSettings', async () => {
-      await vscode.commands.executeCommand(
-        'workbench.action.openSettings',
-        'anytype.api',
-      );
+      await ConfigManager.openSettings();
     }),
   );
 
@@ -62,31 +44,18 @@ export function activate(context: vscode.ExtensionContext) {
       'anytype.openMarkdown',
       async (item: TreeItem) => {
         try {
-          // 使用扩展的全局存储目录
-          const cacheDir = getCacheDir(context);
-
-          // 文件名安全处理
-          const safeName = item.label.replace(
-            /[\\/:*?"<>|]/g,
-            '_',
-          );
-
-          const filePath = path.join(cacheDir, `${safeName}.md`);
-
-          // 写入 markdown 内容
-          fs.writeFileSync(filePath, item.markdown ?? '', 'utf8');
+          const filePath = StorageManager.writeFile(item.label, item.markdown ?? '');
 
           // 打开文件
           const uri = vscode.Uri.file(filePath);
-          const document =
-            await vscode.workspace.openTextDocument(uri);
+          const document = await vscode.workspace.openTextDocument(uri);
 
           await vscode.window.showTextDocument(document, {
             preview: false,
           });
         } catch (error) {
           vscode.window.showErrorMessage(
-            `Failed to open markdown file: ${error}`,
+            I18n.t('extension.error.failedToOpenMarkdown', String(error)),
           );
         }
       },
@@ -96,30 +65,31 @@ export function activate(context: vscode.ExtensionContext) {
   // 监听配置变化
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (
-        e.affectsConfiguration('anytype.api.baseUrl') ||
-        e.affectsConfiguration('anytype.api.token')
-      ) {
-        recreateApiClient();
+      if (ConfigManager.affectsApiConfig(e)) {
+        ApiClientManager.recreateClient();
         objectsTreeProvider.refresh();
-        vscode.window.showInformationMessage('Anytype configuration updated');
+        vscode.window.showInformationMessage(
+          I18n.t('extension.command.configuration.updated'),
+        );
       }
     }),
   );
 
   // 显示欢迎信息并提示选择空间
   if (!SpaceManager.hasSpace()) {
-    vscode.window.showInformationMessage(
-      'Anytype extension activated! Please select a space to get started.',
-      'Select Space',
-      'Open Settings',
-    ).then((selection) => {
-      if (selection === 'Select Space') {
-        vscode.commands.executeCommand('anytype.switchSpace');
-      } else if (selection === 'Open Settings') {
-        vscode.commands.executeCommand('anytype.openSettings');
-      }
-    });
+    vscode.window
+      .showInformationMessage(
+        I18n.t('extension.command.activated.title'),
+        I18n.t('extension.command.selectSpace'),
+        I18n.t('extension.command.openSettings.button'),
+      )
+      .then((selection) => {
+        if (selection === I18n.t('extension.command.selectSpace')) {
+          vscode.commands.executeCommand('anytype.switchSpace');
+        } else if (selection === I18n.t('extension.command.openSettings.button')) {
+          vscode.commands.executeCommand('anytype.openSettings');
+        }
+      });
   }
 }
 
