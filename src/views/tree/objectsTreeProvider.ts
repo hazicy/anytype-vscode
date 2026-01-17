@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { getApiClient, ConfigManager, SpaceManager } from '../../services';
 import { I18n } from '../../utils';
-import { AnytypeClient, type Object } from '../../lib/sdk';
 
 /**
  * 树节点结构
@@ -12,6 +11,7 @@ export type TreeItem = {
   collapsibleState: vscode.TreeItemCollapsibleState;
   children?: TreeItem[];
   markdown?: string;
+  objectCount?: number;
 } & vscode.TreeItem;
 
 /**
@@ -30,6 +30,7 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
   private cache: Map<string, CacheItem> = new Map();
   private typeIds: Set<string> = new Set();
+  private typeCountCache: Map<string, number> = new Map();
 
   /**
    * 刷新树视图
@@ -37,6 +38,7 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
   refresh(): void {
     this.cache.clear();
     this.typeIds.clear();
+    this.typeCountCache.clear();
     this._onDidChangeTreeData.fire();
   }
 
@@ -44,17 +46,33 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
    * 获取树项元素
    */
   getTreeItem(element: TreeItem): vscode.TreeItem {
+    // 根据是否有数量来决定显示的 label
+    let label = element.label;
+    if (element.objectCount !== undefined && this.typeIds.has(element.id)) {
+      label = `${element.label} (${element.objectCount})`;
+    }
+
     const treeItem = new vscode.TreeItem(
-      element.label,
+      label,
       element.collapsibleState,
     );
 
     treeItem.id = element.id;
-    treeItem.iconPath = vscode.ThemeIcon.File;
-    treeItem.contextValue = 'blinkoObject';
 
-    // 绑定点击命令 - 所有的叶子节点都可以点击打开
-    if (element.collapsibleState === vscode.TreeItemCollapsibleState.None) {
+    // 根据是否为类型节点设置不同的 contextValue 和图标
+    if (this.typeIds.has(element.id)) {
+      // 类型节点
+      treeItem.iconPath = new vscode.ThemeIcon('folder');
+      treeItem.contextValue = 'blinkoType';
+      // 添加 tooltip 显示详细信息
+      if (element.objectCount !== undefined) {
+        treeItem.tooltip = `${element.label}: ${element.objectCount} 个对象`;
+      }
+    } else {
+      // 对象节点（叶子节点）
+      treeItem.iconPath = vscode.ThemeIcon.File;
+      treeItem.contextValue = 'blinkoObject';
+      // 绑定点击命令
       treeItem.command = {
         command: 'anytype.openMarkdown',
         title: I18n.t('extension.anytype.openMarkdown'),
@@ -114,17 +132,39 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
     // 清空并重新填充类型 ID 集合
     this.typeIds.clear();
-    res.data.forEach((data) => {
-      this.typeIds.add(data.id);
-    });
+    this.typeCountCache.clear();
 
-    const items: TreeItem[] = res.data.map((data) => {
-      return {
-        id: data.id,
-        label: data.name,
-        collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      };
-    });
+    const items: TreeItem[] = [];
+
+    // 为每个类型获取对象数量
+    for (const type of res.data) {
+      this.typeIds.add(type.id);
+
+      try {
+        // 获取该类型下的对象数量
+        const searchResponse = await client.search.inSpace(spaceId, {
+          types: [type.id],
+          query: '',
+        });
+
+        const count = searchResponse.data.length;
+        this.typeCountCache.set(type.id, count);
+
+        items.push({
+          id: type.id,
+          label: type.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          objectCount: count,
+        });
+      } catch (error) {
+        // 如果获取数量失败，仍然显示类型，但不显示数量
+        items.push({
+          id: type.id,
+          label: type.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+        });
+      }
+    }
 
     return items;
   }
