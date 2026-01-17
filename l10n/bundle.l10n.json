@@ -31,5 +31,7 @@
   "extension.tree.category.images": "Images",
   "extension.tree.outputChannel": "Blinko",
   "extension.error.failedToOpenMarkdown": "Failed to open markdown file: {0}",
-  "extension.error.fetchingDetails": "Failed to fetch details for object {0}"
+  "extension.error.fetchingDetails": "Failed to fetch details for object {0}",
+  "extension.command.syncSuccess": "Successfully synced '{0}'",
+  "extension.error.syncFailed": "Failed to sync: {0}"
 }

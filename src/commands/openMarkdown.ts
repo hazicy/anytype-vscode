@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { StorageManager, SpaceManager, getApiClient } from '../services';
+import { StorageManager, SpaceManager, getApiClient, ObjectSyncManager } from '../services';
 import { I18n } from '../utils';
 import { TreeItem } from '../views/tree/objectsTreeProvider';
 
@@ -20,6 +20,14 @@ export function registerOpenMarkdownCommand(context: vscode.ExtensionContext) {
           }
 
           const filePath = StorageManager.writeFile(item.label, markdown);
+
+          // 注册文件到对象的映射关系
+          ObjectSyncManager.registerMapping({
+            objectId: item.id,
+            objectName: item.label,
+            filePath: filePath,
+            spaceId: SpaceManager.getCurrentSpaceId(),
+          });
 
           // Open file
           const uri = vscode.Uri.file(filePath);

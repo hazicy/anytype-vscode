@@ -31,5 +31,7 @@
   "extension.tree.category.images": "图片",
   "extension.tree.outputChannel": "Blinko",
   "extension.error.failedToOpenMarkdown": "无法打开 markdown 文件：{0}",
-  "extension.error.fetchingDetails": "获取对象 {0} 的详细信息失败"
+  "extension.error.fetchingDetails": "获取对象 {0} 的详细信息失败",
+  "extension.command.syncSuccess": "成功同步 '{0}'",
+  "extension.error.syncFailed": "同步失败：{0}"
 }

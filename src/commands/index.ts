@@ -4,6 +4,8 @@ import { registerRefreshCommand } from './refresh';
 import { registerOpenSettingsCommand } from './openSettings';
 import { registerSwitchSpaceCommand } from './switchSpace';
 import { registerOpenMarkdownCommand } from './openMarkdown';
+import { registerSyncOnSaveCommand } from './syncOnSave';
+import { registerEditorDecorator } from './decorateEditor';
 
 export function registerCommands(
   context: vscode.ExtensionContext,
@@ -13,4 +15,6 @@ export function registerCommands(
   registerOpenSettingsCommand(context);
   registerSwitchSpaceCommand(context);
   registerOpenMarkdownCommand(context);
+  registerSyncOnSaveCommand(context);
+  registerEditorDecorator(context);
 }

@@ -17,3 +17,6 @@ export { SpacePicker, SpaceItem } from './space/spacePicker';
 
 // Storage
 export * from './storage';
+
+// Object Sync
+export * from './objectSyncManager';
