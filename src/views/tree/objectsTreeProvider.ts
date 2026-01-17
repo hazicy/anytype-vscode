@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getApiClient, ConfigManager, SpaceManager } from '../../services';
 import { I18n } from '../../utils';
-import { type Object } from '../../lib/sdk';
+import { AnytypeClient, type Object } from '../../lib/sdk';
 
 /**
  * 树节点结构
@@ -22,29 +22,21 @@ interface CacheItem {
   timestamp: number;
 }
 
-/**
- * Blinko 对象树视图数据提供者
- */
 export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<
     TreeItem | undefined | null | void
   >();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private outputChannel: vscode.OutputChannel;
   private cache: Map<string, CacheItem> = new Map();
-
-  constructor() {
-    this.outputChannel = vscode.window.createOutputChannel(
-      I18n.t('extension.tree.outputChannel'),
-    );
-  }
+  private typeIds: Set<string> = new Set();
 
   /**
    * 刷新树视图
    */
   refresh(): void {
     this.cache.clear();
+    this.typeIds.clear();
     this._onDidChangeTreeData.fire();
   }
 
@@ -61,8 +53,8 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
     treeItem.iconPath = vscode.ThemeIcon.File;
     treeItem.contextValue = 'blinkoObject';
 
-    // 绑定点击命令
-    if (element.markdown) {
+    // 绑定点击命令 - 所有的叶子节点都可以点击打开
+    if (element.collapsibleState === vscode.TreeItemCollapsibleState.None) {
       treeItem.command = {
         command: 'anytype.openMarkdown',
         title: I18n.t('extension.anytype.openMarkdown'),
@@ -81,12 +73,8 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       return this.getRootItems();
     }
 
-    // 如果是分类节点,获取该分类下的对象
-    if (
-      ['pages', 'tasks', 'collections', 'bookmarks', 'images'].includes(
-        element.id,
-      )
-    ) {
+    // 如果是分类节点（来自 types API 的 ID），获取该分类下的对象
+    if (this.typeIds.has(element.id)) {
       return this.getCategoryItems(element.id);
     }
 
@@ -119,37 +107,26 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       return [];
     }
 
-    // Note: types.list() requires spaceId but we don't need it here
-    // as we're just returning static categories
+    const client = getApiClient();
+    const spaceId = SpaceManager.getCurrentSpaceId();
 
-    // 返回5个分类作为根节点
-    return [
-      {
-        id: 'pages',
-        label: I18n.t('extension.tree.category.pages'),
+    const res = await client.types.list(spaceId);
+
+    // 清空并重新填充类型 ID 集合
+    this.typeIds.clear();
+    res.data.forEach((data) => {
+      this.typeIds.add(data.id);
+    });
+
+    const items: TreeItem[] = res.data.map((data) => {
+      return {
+        id: data.id,
+        label: data.name,
         collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      },
-      {
-        id: 'tasks',
-        label: I18n.t('extension.tree.category.tasks'),
-        collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      },
-      {
-        id: 'collections',
-        label: I18n.t('extension.tree.category.collections'),
-        collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      },
-      {
-        id: 'bookmarks',
-        label: I18n.t('extension.tree.category.bookmarks'),
-        collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      },
-      {
-        id: 'images',
-        label: I18n.t('extension.tree.category.images'),
-        collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      },
-    ];
+      };
+    });
+
+    return items;
   }
 
   /**
@@ -166,50 +143,27 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
     if (cacheConfig.enabled) {
       const cached = this.cache.get(cacheKey);
       if (cached && Date.now() - cached.timestamp < cacheConfig.ttl) {
-        this.log(`Using cached data for ${category}`);
         return cached.data;
       }
     }
 
     try {
-      this.log(`Fetching ${category} for space: ${spaceId}`);
-
       const client = getApiClient();
 
-      // 获取对象列表
-      const objectsResponse = await client.objects.list(spaceId, {
-        offset: 0,
-        limit: 50,
+      const detailResponse = await client.search.inSpace(spaceId, {
+        types: [`${category}`],
+        query: '',
       });
 
-      const objects: Object[] = objectsResponse.data;
+      const data = detailResponse.data;
 
-      this.log(`Found ${objects.length} objects in ${category}`);
-
-      // 并行获取所有对象的详细信息
-      const item = objects.map(async (object) => {
-        try {
-          const detailResponse = await client.objects.get(
-            spaceId,
-            object.id,
-          );
-
-          const data = detailResponse.object;
-
-          return {
-            id: data.id,
-            label: data.name || object.id,
-            collapsibleState: vscode.TreeItemCollapsibleState.None,
-            markdown: data.markdown,
-          };
-        } catch (error) {
-          this.log(I18n.t('extension.error.fetchingDetails', object.id));
-          return null;
-        }
+      const items: TreeItem[] = data.map((obj) => {
+        return {
+          id: obj.id,
+          label: obj.name || obj.id,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+        };
       });
-
-      const results = await Promise.all(item);
-      const items = results.filter((item) => item !== null) as TreeItem[];
 
       // 更新缓存
       if (cacheConfig.enabled) {
@@ -221,16 +175,7 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
       return items;
     } catch (error) {
-      this.log(`Error fetching ${category}: ${error}`);
       return [];
     }
-  }
-
-  /**
-   * 记录日志到输出频道
-   */
-  private log(message: string): void {
-    const timestamp = new Date().toLocaleTimeString();
-    this.outputChannel.appendLine(`[${timestamp}] ${message}`);
   }
 }

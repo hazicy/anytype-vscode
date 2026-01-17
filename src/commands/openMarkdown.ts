@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { StorageManager } from '../services';
+import { StorageManager, SpaceManager, getApiClient } from '../services';
 import { I18n } from '../utils';
 import { TreeItem } from '../views/tree/objectsTreeProvider';
 
@@ -9,7 +9,17 @@ export function registerOpenMarkdownCommand(context: vscode.ExtensionContext) {
       'anytype.openMarkdown',
       async (item: TreeItem) => {
         try {
-          const filePath = StorageManager.writeFile(item.label, item.markdown ?? '');
+          let markdown = item.markdown ?? '';
+
+          // 如果 item 没有 markdown,从 API 获取
+          if (!markdown) {
+            const client = getApiClient();
+            const spaceId = SpaceManager.getCurrentSpaceId();
+            const response = await client.objects.get(spaceId, item.id);
+            markdown = response.object.markdown ?? '';
+          }
+
+          const filePath = StorageManager.writeFile(item.label, markdown);
 
           // Open file
           const uri = vscode.Uri.file(filePath);
