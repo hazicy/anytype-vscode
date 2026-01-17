@@ -119,5 +119,8 @@
     "typescript-eslint": "^8.52.0",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "markdownlint": "^0.40.0"
   }
 }
