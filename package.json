@@ -62,6 +62,11 @@
     "views": {
       "anytypeContainer": [
         {
+          "id": "pinnedView",
+          "name": "%view.pinnedView.name%",
+          "icon": "$(star-full)"
+        },
+        {
           "id": "objectsView",
           "name": "%view.objectsView.name%",
           "icon": "$(add)"
@@ -88,6 +93,11 @@
         {
           "command": "anytype.refresh",
           "when": "view == trashView",
+          "group": "navigation"
+        },
+        {
+          "command": "anytype.refresh",
+          "when": "view == pinnedView",
           "group": "navigation"
         }
       ],

@@ -8,6 +8,7 @@
   "command.anytype.deleteObject.title": "删除对象",
   "command.anytype.archiveObject.title": "归档对象",
   "view.anytypeContainer.title": "Anytype",
+  "view.pinnedView.name": "置顶",
   "view.objectsView.name": "对象",
   "view.trashView.name": "回收站",
   "configuration.title": "Anytype",

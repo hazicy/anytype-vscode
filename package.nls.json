@@ -8,6 +8,7 @@
   "command.anytype.deleteObject.title": "Delete Object",
   "command.anytype.archiveObject.title": "Archive Object",
   "view.anytypeContainer.title": "Anytype",
+  "view.pinnedView.name": "Pinned",
   "view.objectsView.name": "Objects",
   "view.trashView.name": "Trash",
   "configuration.title": "Anytype",

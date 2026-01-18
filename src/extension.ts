@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ObjectsTreeProvider } from './views/tree/objectsTreeProvider';
 import { TrashTreeProvider } from './views/tree/trashTreeProvider';
+import { PinnedTreeProvider } from './views/tree/pinnedTreeProvider';
 import { ApiClientManager, SpaceManager, StorageManager, ConfigManager } from './services';
 import { I18n } from './utils';
 import { registerCommands } from './commands';
@@ -13,6 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const objectsTreeProvider = new ObjectsTreeProvider();
   const trashTreeProvider = new TrashTreeProvider();
+  const pinnedTreeProvider = new PinnedTreeProvider();
 
   // 注册 Objects TreeView
   vscode.window.registerTreeDataProvider(
@@ -26,8 +28,14 @@ export function activate(context: vscode.ExtensionContext) {
     trashTreeProvider,
   );
 
+  // 注册 Pinned TreeView
+  vscode.window.registerTreeDataProvider(
+    'pinnedView',
+    pinnedTreeProvider,
+  );
+
   // 注册所有命令
-  registerCommands(context, objectsTreeProvider, trashTreeProvider);
+  registerCommands(context, objectsTreeProvider, trashTreeProvider, pinnedTreeProvider);
 
   // 监听配置变化
   context.subscriptions.push(
@@ -36,6 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
         ApiClientManager.recreateClient();
         objectsTreeProvider.refresh();
         trashTreeProvider.refresh();
+        pinnedTreeProvider.refresh();
         vscode.window.showInformationMessage(
           I18n.t('extension.command.configuration.updated'),
         );

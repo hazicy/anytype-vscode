@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ObjectsTreeProvider } from '../views/tree/objectsTreeProvider';
 import { TrashTreeProvider } from '../views/tree/trashTreeProvider';
+import { PinnedTreeProvider } from '../views/tree/pinnedTreeProvider';
 import { registerRefreshCommand } from './refresh';
 import { registerOpenSettingsCommand } from './openSettings';
 import { registerSwitchSpaceCommand } from './switchSpace';
@@ -15,10 +16,11 @@ export function registerCommands(
   context: vscode.ExtensionContext,
   objectsTreeProvider: ObjectsTreeProvider,
   trashTreeProvider?: TrashTreeProvider,
+  pinnedTreeProvider?: PinnedTreeProvider,
 ) {
-  registerRefreshCommand(context, objectsTreeProvider, trashTreeProvider);
+  registerRefreshCommand(context, objectsTreeProvider, trashTreeProvider, pinnedTreeProvider);
   registerOpenSettingsCommand(context);
-  registerSwitchSpaceCommand(context, objectsTreeProvider, trashTreeProvider);
+  registerSwitchSpaceCommand(context, objectsTreeProvider, trashTreeProvider, pinnedTreeProvider);
   registerOpenMarkdownCommand(context);
   registerSyncOnSaveCommand(context);
   registerEditorDecorator(context);
