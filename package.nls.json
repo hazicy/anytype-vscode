@@ -9,6 +9,7 @@
   "command.anytype.archiveObject.title": "Archive Object",
   "view.anytypeContainer.title": "Anytype",
   "view.objectsView.name": "Objects",
+  "view.trashView.name": "Trash",
   "configuration.title": "Anytype",
   "configuration.api.baseUrl.description": "The base URL of the Anytype API",
   "configuration.api.token.description": "API token for authentication (Bearer token)",

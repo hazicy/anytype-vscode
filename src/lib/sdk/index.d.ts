@@ -424,6 +424,7 @@ declare class ObjectsResource {
     list(spaceId: string, params?: {
         limit?: number;
         offset?: number;
+        archived?: boolean;
     }): Promise<PaginatedResponse<Object$1>>;
     get(spaceId: string, objectId: string): Promise<ObjectResponse>;
     create(spaceId: string, request: CreateObjectRequest): Promise<ObjectResponse>;

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ObjectsTreeProvider } from './views/tree/objectsTreeProvider';
+import { TrashTreeProvider } from './views/tree/trashTreeProvider';
 import { ApiClientManager, SpaceManager, StorageManager, ConfigManager } from './services';
 import { I18n } from './utils';
 import { registerCommands } from './commands';
@@ -11,6 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
   SpaceManager.initialize(context);
 
   const objectsTreeProvider = new ObjectsTreeProvider();
+  const trashTreeProvider = new TrashTreeProvider();
 
   // 注册 Objects TreeView
   vscode.window.registerTreeDataProvider(
@@ -18,8 +20,14 @@ export function activate(context: vscode.ExtensionContext) {
     objectsTreeProvider,
   );
 
+  // 注册 Trash TreeView
+  vscode.window.registerTreeDataProvider(
+    'trashView',
+    trashTreeProvider,
+  );
+
   // 注册所有命令
-  registerCommands(context, objectsTreeProvider);
+  registerCommands(context, objectsTreeProvider, trashTreeProvider);
 
   // 监听配置变化
   context.subscriptions.push(
@@ -27,6 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (ConfigManager.affectsApiConfig(e)) {
         ApiClientManager.recreateClient();
         objectsTreeProvider.refresh();
+        trashTreeProvider.refresh();
         vscode.window.showInformationMessage(
           I18n.t('extension.command.configuration.updated'),
         );

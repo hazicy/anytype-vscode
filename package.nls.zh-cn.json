@@ -9,6 +9,7 @@
   "command.anytype.archiveObject.title": "归档对象",
   "view.anytypeContainer.title": "Anytype",
   "view.objectsView.name": "对象",
+  "view.trashView.name": "回收站",
   "configuration.title": "Anytype",
   "configuration.api.baseUrl.description": "Anytype API 的基础 URL",
   "configuration.api.token.description": "用于身份验证的 API 令牌（Bearer token）",
