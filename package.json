@@ -74,18 +74,23 @@
           "command": "anytype.createObject",
           "when": "view == objectsView",
           "group": "navigation"
+        },
+        {
+          "command": "anytype.refresh",
+          "when": "view == objectsView",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
           "command": "anytype.deleteObject",
           "when": "view == objectsView && viewItem == blinkoObject",
-          "group": "inline"
+          "group": "base@1"
         },
         {
           "command": "anytype.archiveObject",
           "when": "view == objectsView && viewItem == blinkoObject",
-          "group": "inline"
+          "group": "base@2"
         }
       ]
     },
