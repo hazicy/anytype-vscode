@@ -7,6 +7,7 @@ import {
 } from '../services';
 import { I18n } from '../utils';
 import { TreeItem } from '../views/tree/objectsTreeProvider';
+import { isInvalidSpaceError } from '../utils/errorHandler';
 // @ts-ignore
 import { lint as lintSync } from 'markdownlint/sync';
 // @ts-ignore
@@ -24,8 +25,19 @@ export function registerOpenMarkdownCommand(context: vscode.ExtensionContext) {
           if (!markdown) {
             const client = getApiClient();
             const spaceId = SpaceManager.getCurrentSpaceId();
-            const response = await client.objects.get(spaceId, item.id);
-            markdown = response.object.markdown ?? '';
+
+            try {
+              const response = await client.objects.get(spaceId, item.id);
+              markdown = response.object.markdown ?? '';
+            } catch (error) {
+              // 检查是否是空间无效错误
+              if (isInvalidSpaceError(error)) {
+                // 触发空间重新选择
+                vscode.commands.executeCommand('anytype.switchSpace');
+                return;
+              }
+              throw error; // 重新抛出其他错误
+            }
           }
 
           const results = lintSync({ strings: { content: markdown } });

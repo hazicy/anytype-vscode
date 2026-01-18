@@ -52,5 +52,8 @@
   "extension.command.archiveObject.noSelection": "No object selected",
   "extension.command.archiveObject.archiving": "Archiving object...",
   "extension.command.archiveObject.notSupported": "Archiving is not currently supported for '{0}'. The Anytype API does not provide an archive method.",
-  "extension.command.archiveObject.error": "Failed to archive object"
+  "extension.command.archiveObject.error": "Failed to archive object",
+  "extension.command.spaceNotFound": "Current space does not exist or has been deleted",
+  "extension.command.cancel": "Cancel",
+  "extension.command.validatingSpace": "Validating space..."
 }

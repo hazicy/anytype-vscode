@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ObjectsTreeProvider, TreeItem } from '../views/tree/objectsTreeProvider';
 import { getApiClient, ConfigManager, SpaceManager } from '../services';
 import { I18n } from '../utils';
+import { isInvalidSpaceError } from '../utils/errorHandler';
 
 export function registerDeleteObjectCommand(
   context: vscode.ExtensionContext,
@@ -65,14 +66,24 @@ export function registerDeleteObjectCommand(
               cancellable: false,
             },
             async () => {
-              await client.objects.delete(spaceId, treeItem.id);
+              try {
+                await client.objects.delete(spaceId, treeItem.id);
 
-              vscode.window.showInformationMessage(
-                I18n.t('extension.command.deleteObject.success', treeItem.label),
-              );
+                vscode.window.showInformationMessage(
+                  I18n.t('extension.command.deleteObject.success', treeItem.label),
+                );
 
-              // 刷新树视图
-              objectsTreeProvider.refresh();
+                // 刷新树视图
+                objectsTreeProvider.refresh();
+              } catch (error) {
+                // 检查是否是空间无效错误
+                if (isInvalidSpaceError(error)) {
+                  // 触发空间重新选择
+                  vscode.commands.executeCommand('anytype.switchSpace');
+                } else {
+                  throw error; // 重新抛出其他错误
+                }
+              }
             },
           );
         } catch (error) {

@@ -52,5 +52,8 @@
   "extension.command.archiveObject.noSelection": "未选择对象",
   "extension.command.archiveObject.archiving": "正在归档对象...",
   "extension.command.archiveObject.notSupported": "暂不支持归档 '{0}'。Anytype API 未提供归档方法。",
-  "extension.command.archiveObject.error": "归档对象失败"
+  "extension.command.archiveObject.error": "归档对象失败",
+  "extension.command.spaceNotFound": "当前空间不存在或已被删除",
+  "extension.command.cancel": "取消",
+  "extension.command.validatingSpace": "正在验证空间..."
 }

@@ -109,6 +109,50 @@ export class SpaceManager {
   }
 
   /**
+   * Validate if current space still exists on server
+   */
+  static async validateCurrentSpace(): Promise<boolean> {
+    if (!this.currentSpace) {
+      return false;
+    }
+
+    try {
+      const client = getApiClient();
+      await client.spaces.get(this.currentSpace.id);
+      return true;
+    } catch (error) {
+      // Space doesn't exist or other error
+      return false;
+    }
+  }
+
+  /**
+   * Clear invalid space from local storage
+   */
+  static async clearInvalidSpace(context: vscode.ExtensionContext): Promise<void> {
+    this.currentSpace = null;
+    await context.globalState.update('currentSpaceId', undefined);
+    this.updateStatusBar();
+  }
+
+  /**
+   * Handle invalid space error - clears space and prompts user to select new one
+   */
+  static async handleInvalidSpace(context: vscode.ExtensionContext): Promise<void> {
+    await this.clearInvalidSpace(context);
+
+    const selection = await vscode.window.showWarningMessage(
+      I18n.t('extension.command.spaceNotFound'),
+      I18n.t('extension.command.selectSpace'),
+      I18n.t('extension.command.cancel'),
+    );
+
+    if (selection === I18n.t('extension.command.selectSpace')) {
+      await this.showSpacePicker(context);
+    }
+  }
+
+  /**
    * Update status bar display
    */
   private static updateStatusBar(): void {

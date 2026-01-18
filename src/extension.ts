@@ -34,8 +34,11 @@ export function activate(context: vscode.ExtensionContext) {
     }),
   );
 
-  // 显示欢迎信息并提示选择空间
-  if (!SpaceManager.hasSpace()) {
+  // 验证当前空间是否仍然有效
+  if (SpaceManager.hasSpace()) {
+    validateAndHandleSpace(context);
+  } else {
+    // 显示欢迎信息并提示选择空间
     vscode.window
       .showInformationMessage(
         I18n.t('extension.command.activated.title'),
@@ -49,6 +52,17 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.commands.executeCommand('anytype.openSettings');
         }
       });
+  }
+}
+
+/**
+ * Validate current space and handle invalid space scenario
+ */
+async function validateAndHandleSpace(context: vscode.ExtensionContext): Promise<void> {
+  const isValid = await SpaceManager.validateCurrentSpace();
+
+  if (!isValid) {
+    await SpaceManager.handleInvalidSpace(context);
   }
 }
 

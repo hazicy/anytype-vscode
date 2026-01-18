@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ObjectSyncManager, SpaceManager, getApiClient } from '../services';
 import { I18n } from '../utils';
+import { isInvalidSpaceError } from '../utils/errorHandler';
 
 /**
  * 注册文档保存时同步的命令
@@ -23,9 +24,19 @@ export function registerSyncOnSaveCommand(context: vscode.ExtensionContext) {
 
         // 调用 API 更新对象
         const client = getApiClient();
-        await client.objects.update(mapping.spaceId, mapping.objectId, {
-          markdown: content,
-        });
+        try {
+          await client.objects.update(mapping.spaceId, mapping.objectId, {
+            markdown: content,
+          });
+        } catch (error) {
+          // 检查是否是空间无效错误
+          if (isInvalidSpaceError(error)) {
+            // 触发空间重新选择
+            vscode.commands.executeCommand('anytype.switchSpace');
+            return;
+          }
+          throw error; // 重新抛出其他错误
+        }
       } catch (error) {
         // 显示错误提示
         vscode.window.showErrorMessage(

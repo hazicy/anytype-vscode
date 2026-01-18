@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getApiClient, ConfigManager, SpaceManager } from '../../services';
 import { I18n } from '../../utils';
+import { isInvalidSpaceError } from '../../utils/errorHandler';
 
 /**
  * 树节点结构
@@ -125,48 +126,62 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       return [];
     }
 
-    const client = getApiClient();
-    const spaceId = SpaceManager.getCurrentSpaceId();
+    try {
+      const client = getApiClient();
+      const spaceId = SpaceManager.getCurrentSpaceId();
 
-    const res = await client.types.list(spaceId);
+      const res = await client.types.list(spaceId);
 
-    // 清空并重新填充类型 ID 集合
-    this.typeIds.clear();
-    this.typeCountCache.clear();
+      // 清空并重新填充类型 ID 集合
+      this.typeIds.clear();
+      this.typeCountCache.clear();
 
-    const items: TreeItem[] = [];
+      const items: TreeItem[] = [];
 
-    // 为每个类型获取对象数量
-    for (const type of res.data) {
-      this.typeIds.add(type.id);
+      // 为每个类型获取对象数量
+      for (const type of res.data) {
+        this.typeIds.add(type.id);
 
-      try {
-        // 获取该类型下的对象数量
-        const searchResponse = await client.search.inSpace(spaceId, {
-          types: [type.id],
-          query: '',
-        });
+        try {
+          // 获取该类型下的对象数量
+          const searchResponse = await client.search.inSpace(spaceId, {
+            types: [type.id],
+            query: '',
+          });
 
-        const count = searchResponse.data.length;
-        this.typeCountCache.set(type.id, count);
+          const count = searchResponse.data.length;
+          this.typeCountCache.set(type.id, count);
 
-        items.push({
-          id: type.id,
-          label: type.name,
-          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-          objectCount: count,
-        });
-      } catch (error) {
-        // 如果获取数量失败，仍然显示类型，但不显示数量
-        items.push({
-          id: type.id,
-          label: type.name,
-          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-        });
+          items.push({
+            id: type.id,
+            label: type.name,
+            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+            objectCount: count,
+          });
+        } catch (error) {
+          // 如果获取数量失败，仍然显示类型，但不显示数量
+          items.push({
+            id: type.id,
+            label: type.name,
+            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          });
+        }
       }
-    }
 
-    return items;
+      return items;
+    } catch (error) {
+      // 检查是否是空间无效错误
+      if (isInvalidSpaceError(error)) {
+        // 触发空间重新选择
+        vscode.commands.executeCommand('anytype.switchSpace');
+      } else {
+        // 其他错误也显示警告
+        vscode.window.showWarningMessage(
+          I18n.t('extension.error.fetchingDetails', String(error))
+        );
+      }
+      return [];
+    }
   }
 
   /**
@@ -215,6 +230,11 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
       return items;
     } catch (error) {
+      // 检查是否是空间无效错误
+      if (isInvalidSpaceError(error)) {
+        // 触发空间重新选择
+        vscode.commands.executeCommand('anytype.switchSpace');
+      }
       return [];
     }
   }
