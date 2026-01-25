@@ -117,18 +117,20 @@ export class TrashTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       const client = getApiClient();
 
       const response = await client.objects.list(spaceId, {
-        archived: true,
+        limit: 100,
       });
 
       const data = response.data;
 
-      const items: TreeItem[] = data.map((obj) => {
-        return {
-          id: obj.id,
-          label: obj.name || obj.id,
-          collapsibleState: vscode.TreeItemCollapsibleState.None,
-        };
-      });
+      const items: TreeItem[] = data
+        .filter((obj) => obj.archived)
+        .map((obj) => {
+          return {
+            id: obj.id,
+            label: obj.name || obj.id,
+            collapsibleState: vscode.TreeItemCollapsibleState.None,
+          };
+        });
 
       // 更新缓存
       if (cacheConfig.enabled) {
@@ -147,7 +149,7 @@ export class TrashTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       } else {
         // 其他错误也显示警告
         vscode.window.showWarningMessage(
-          I18n.t('extension.error.fetchingDetails', String(error))
+          I18n.t('extension.error.fetchingDetails', String(error)),
         );
       }
       return [];
