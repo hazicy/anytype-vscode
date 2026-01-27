@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { getApiClient, ConfigManager, SpaceManager } from '../../services';
 import { I18n } from '../../utils';
 import { isInvalidSpaceError } from '../../utils/errorHandler';
+import type { EmojiIcon, FileIcon, NamedIcon } from '../../lib/sdk';
+import { downloadIcon } from '../../utils/downloadIcon';
 
 /**
  * 树节点结构
@@ -13,6 +15,7 @@ export type TreeItem = {
   children?: TreeItem[];
   markdown?: string;
   objectCount?: number;
+  iconPath?: string;
 } & vscode.TreeItem;
 
 /**
@@ -30,8 +33,13 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private cache: Map<string, CacheItem> = new Map();
+  private context: vscode.ExtensionContext;
   private typeIds: Set<string> = new Set();
   private typeCountCache: Map<string, number> = new Map();
+
+  constructor(context: vscode.ExtensionContext) {
+    this.context = context;
+  }
 
   /**
    * 刷新树视图
@@ -53,10 +61,7 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       label = `${element.label} (${element.objectCount})`;
     }
 
-    const treeItem = new vscode.TreeItem(
-      label,
-      element.collapsibleState,
-    );
+    const treeItem = new vscode.TreeItem(label, element.collapsibleState);
 
     treeItem.id = element.id;
 
@@ -71,7 +76,10 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       }
     } else {
       // 对象节点（叶子节点）
-      treeItem.iconPath = vscode.ThemeIcon.File;
+      // 如果有自定义图标路径则使用，否则使用默认图标
+      treeItem.iconPath = element.iconPath
+        ? vscode.Uri.file(element.iconPath)
+        : vscode.ThemeIcon.File;
       treeItem.contextValue = 'blinkoObject';
       // 绑定点击命令
       treeItem.command = {
@@ -177,7 +185,7 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
       } else {
         // 其他错误也显示警告
         vscode.window.showWarningMessage(
-          I18n.t('extension.error.fetchingDetails', String(error))
+          I18n.t('extension.error.fetchingDetails', String(error)),
         );
       }
       return [];
@@ -212,13 +220,34 @@ export class ObjectsTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
       const data = detailResponse.data;
 
-      const items: TreeItem[] = data.map((obj) => {
+      const itemsPromise = data.map(async (obj) => {
+        const icon = obj.icon;
+        let iconPath = '';
+
+        if (icon?.format === 'file') {
+          const fileIcon = icon as FileIcon;
+          iconPath = await downloadIcon(fileIcon.file, this.context);
+        }
+
+        if (icon?.format === 'emoji') {
+          const emojiIcon = icon as EmojiIcon;
+          iconPath = emojiIcon.emoji;
+        }
+
+        if (icon?.format === 'icon') {
+          const namedIcon = icon as NamedIcon;
+          iconPath = namedIcon.name;
+        }
+
         return {
           id: obj.id,
+          iconPath,
           label: obj.name || obj.id,
           collapsibleState: vscode.TreeItemCollapsibleState.None,
         };
       });
+
+      const items = await Promise.all(itemsPromise);
 
       // 更新缓存
       if (cacheConfig.enabled) {

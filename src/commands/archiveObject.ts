@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
-import { ObjectsTreeProvider, TreeItem } from '../views/tree/objectsTreeProvider';
+import {
+  ObjectsTreeProvider,
+  TreeItem,
+} from '../views/tree/objectsTreeProvider';
 import { getApiClient, ConfigManager, SpaceManager } from '../services';
 import { I18n } from '../utils';
 

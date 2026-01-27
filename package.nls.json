@@ -10,6 +10,7 @@
   "view.anytypeContainer.title": "Anytype",
   "view.pinnedView.name": "Pinned",
   "view.objectsView.name": "Objects",
+  "view.recentlyEditedView.name": "Recently Edited",
   "view.trashView.name": "Trash",
   "configuration.title": "Anytype",
   "configuration.api.baseUrl.description": "The base URL of the Anytype API",

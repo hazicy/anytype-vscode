@@ -10,6 +10,7 @@
   "view.anytypeContainer.title": "Anytype",
   "view.pinnedView.name": "置顶",
   "view.objectsView.name": "对象",
+  "view.recentlyEditedView.name": "最近编辑",
   "view.trashView.name": "回收站",
   "configuration.title": "Anytype",
   "configuration.api.baseUrl.description": "Anytype API 的基础 URL",

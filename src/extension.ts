@@ -1,8 +1,11 @@
 import * as vscode from 'vscode';
 import { ObjectsTreeProvider } from './views/tree/objectsTreeProvider';
-import { TrashTreeProvider } from './views/tree/trashTreeProvider';
-import { PinnedTreeProvider } from './views/tree/pinnedTreeProvider';
-import { ApiClientManager, SpaceManager, StorageManager, ConfigManager } from './services';
+import {
+  ApiClientManager,
+  SpaceManager,
+  StorageManager,
+  ConfigManager,
+} from './services';
 import { I18n } from './utils';
 import { registerCommands } from './commands';
 
@@ -12,30 +15,13 @@ export function activate(context: vscode.ExtensionContext) {
   StorageManager.initialize(context);
   SpaceManager.initialize(context);
 
-  const objectsTreeProvider = new ObjectsTreeProvider();
-  const trashTreeProvider = new TrashTreeProvider();
-  const pinnedTreeProvider = new PinnedTreeProvider();
+  const objectsTreeProvider = new ObjectsTreeProvider(context);
 
   // 注册 Objects TreeView
-  vscode.window.registerTreeDataProvider(
-    'objectsView',
-    objectsTreeProvider,
-  );
-
-  // 注册 Trash TreeView
-  vscode.window.registerTreeDataProvider(
-    'trashView',
-    trashTreeProvider,
-  );
-
-  // 注册 Pinned TreeView
-  vscode.window.registerTreeDataProvider(
-    'pinnedView',
-    pinnedTreeProvider,
-  );
+  vscode.window.registerTreeDataProvider('objectsView', objectsTreeProvider);
 
   // 注册所有命令
-  registerCommands(context, objectsTreeProvider, trashTreeProvider, pinnedTreeProvider);
+  registerCommands(context, objectsTreeProvider);
 
   // 监听配置变化
   context.subscriptions.push(
@@ -43,8 +29,6 @@ export function activate(context: vscode.ExtensionContext) {
       if (ConfigManager.affectsApiConfig(e)) {
         ApiClientManager.recreateClient();
         objectsTreeProvider.refresh();
-        trashTreeProvider.refresh();
-        pinnedTreeProvider.refresh();
         vscode.window.showInformationMessage(
           I18n.t('extension.command.configuration.updated'),
         );
@@ -66,7 +50,9 @@ export function activate(context: vscode.ExtensionContext) {
       .then((selection) => {
         if (selection === I18n.t('extension.command.selectSpace')) {
           vscode.commands.executeCommand('anytype.switchSpace');
-        } else if (selection === I18n.t('extension.command.openSettings.button')) {
+        } else if (
+          selection === I18n.t('extension.command.openSettings.button')
+        ) {
           vscode.commands.executeCommand('anytype.openSettings');
         }
       });
@@ -76,7 +62,9 @@ export function activate(context: vscode.ExtensionContext) {
 /**
  * Validate current space and handle invalid space scenario
  */
-async function validateAndHandleSpace(context: vscode.ExtensionContext): Promise<void> {
+async function validateAndHandleSpace(
+  context: vscode.ExtensionContext,
+): Promise<void> {
   const isValid = await SpaceManager.validateCurrentSpace();
 
   if (!isValid) {

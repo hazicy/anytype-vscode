@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
-import { ObjectsTreeProvider, TreeItem } from '../views/tree/objectsTreeProvider';
+import {
+  ObjectsTreeProvider,
+  TreeItem,
+} from '../views/tree/objectsTreeProvider';
 import { getApiClient, ConfigManager, SpaceManager } from '../services';
 import { I18n } from '../utils';
 import { isInvalidSpaceError } from '../utils/errorHandler';
@@ -51,7 +54,9 @@ export function registerDeleteObjectCommand(
           I18n.t('extension.command.deleteObject.cancelButton'),
         );
 
-        if (confirm !== I18n.t('extension.command.deleteObject.confirmButton')) {
+        if (
+          confirm !== I18n.t('extension.command.deleteObject.confirmButton')
+        ) {
           return;
         }
 
@@ -70,7 +75,10 @@ export function registerDeleteObjectCommand(
                 await client.objects.delete(spaceId, treeItem.id);
 
                 vscode.window.showInformationMessage(
-                  I18n.t('extension.command.deleteObject.success', treeItem.label),
+                  I18n.t(
+                    'extension.command.deleteObject.success',
+                    treeItem.label,
+                  ),
                 );
 
                 // 刷新树视图
